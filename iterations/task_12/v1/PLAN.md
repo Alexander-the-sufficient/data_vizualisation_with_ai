@@ -33,26 +33,34 @@ The original Notebook choice was made assuming an interactive web-UI authoring l
 
 ## Architecture (Observable Framework page, cells top-to-bottom)
 
-> **Revised:** primary map mark switched from `Plot.dot` to `Plot.hexbin`; brushable time strip promoted to required; map interaction switched from click to brush; region list trimmed to three with a Pacific-Ring projection variant; date range tightened to 1980–2025 (was 1975–2025); `magType` added to kept columns and surfaced in the detail panel; `Plot.brush` syntax corrected to `{x, y}` form; `filteredInBrush` derivation specified to use `Plot.brush`'s native data-channel emission; **hosting pivoted from Observable Notebook to Observable Framework + GitHub Pages** (rationale in the Hosting decision section above) — cell syntax adjusts to Framework's `view()` and `Mutable` patterns, the cell stack is otherwise identical.
+> **Revised (option E pivot):** brush-based interactions removed entirely. `@observablehq/plot@0.6.17` (latest published) ships zero brush primitives — `Plot.brush`, `Plot.brushX`, `Plot.brushY` are all undefined. Both the map brush (cell 11) and the time-strip brush (cell 13) had to be replaced. New design: **click-to-select-hex** for the map (Plot.pointer + a click DOM listener + a precomputed lat/lon-grid lookup) and a **passive year strip** for cell 13 (rendered for context, no longer interactive — year filtering is via the cell 5 slider only). The mutable formerly named `mapBrush` is renamed `selectedHex` for semantic clarity.
+>
+> **Other revisions still in force:** primary map mark is `Plot.dot` wrapping a `Plot.hexbin` transform (transform, not mark); region list trimmed to three with a Pacific-Ring projection variant; date range 1980–2025; `magType` in kept columns and surfaced in the detail panel; data shipped as uncompressed `.csv`; **hosting on Observable Framework + GitHub Pages** (rationale in the Hosting decision section).
 
 1. **Title + framing** (markdown). One-paragraph story setup; the question the chart answers.
 2. **`quakes` (FileAttachment CSV)** — pre-processed locally: columns `id, time, latitude, longitude, depth, mag, magType, place`. Magnitude ≥ 5.0 filter pre-applied; **shipped uncompressed at ~7 MB** (gzip path was abandoned after dev-server verification — see Data pipeline section). The `id` column is required for constructing per-event USGS links in the detail panel; `magType` carries the catalog's heterogeneous magnitude scale label (Mw, mb, ML, Ms) for surfacing alongside the value in the detail panel.
 3. **`world` (FileAttachment TopoJSON)** — `countries-110m.json` (~100 KB) for the basemap. Decoded at use site via `topojson.feature(world, world.objects.countries)`.
 4. **`pg`** — JS port of `design_system.R` tokens: `{alloy: "#5C5B59", lightQuartz: "#ECEAE4", quartz: "#D6D0C2", darkStone: "#7E8182", heritageRed: "#D92B2B", copper: "#896C4C"}`.
-5. **`yearRange`** — two-handle range input over `[1980, 2025]`, default `[1980, 2025]`. Framework pattern: `const yearRangeInput = Inputs.range([1980, 2025], {step: 1, value: [1980, 2025], label: "Year range"}); const yearRange = Generators.input(yearRangeInput); display(yearRangeInput);` (using the explicit input/Generator/display triple so the same input element can be `Inputs.bind`'d to the time-strip brush in cell 13). Two-way bound to the time-strip brush so dragging either control updates the other. Drives the map and the histogram.
+5. **`yearRange`** — Observable Inputs has no native two-handle range, so two single-handle ranges are composed via `Inputs.form({start: Inputs.range([1980, 2025], {value: 1980}), end: Inputs.range([1980, 2025], {value: 2025})})`. The combined value is `{start: <year>, end: <year>}`. *Revised (option E):* this slider is now the **only** interactive year control — the time-strip brush from the previous plan is dropped. Drives the filtered event set, the histogram, and the passive year strip in cell 13.
 6. **`magThreshold`** — `const magThresholdInput = Inputs.range([5.0, 7.5], {step: 0.1, value: 5.0, label: "Minimum magnitude"}); const magThreshold = Generators.input(magThresholdInput); display(magThresholdInput);`. *Revised:* slider range tightened — see "Magnitude slider range" note below.
 7. **`regionFocus`** — `const regionFocusInput = Inputs.select(["World", "Pacific Ring of Fire", "Mid-Atlantic Ridge"], {value: "World", label: "Region"}); const regionFocus = Generators.input(regionFocusInput); display(regionFocusInput);`. *Revised:* reduced from six options to three for v1; rationale and v2 candidates documented below. Each region maps to a projection config: `World → equal-earth, rotate [0,0]`; `Pacific Ring of Fire → equal-earth, rotate [-150, 0]` (so the arc renders as a single continuous shape instead of being cut at the antimeridian); `Mid-Atlantic Ridge → equal-earth, rotate [30, 0]`.
-8. **`mapBrush`** (`Mutable`) — set by the `Plot.brush` interaction on the map (cell 11). Wiring detail (made explicit per review): `const mapBrush = Mutable(null);` declared in this cell. The map cell (11) renders the `Plot.plot(...)` to a DOM node, then attaches an `input` event listener: `plot.addEventListener("input", () => mapBrush.value = plot.value);`. `plot.value` is the array of data rows currently inside the brush rectangle (because the brush mark is bound to `x: "longitude"` and `y: "latitude"` — the value is data rows, not pixel coordinates). When the brush is cleared, `plot.value` is `null`, which propagates to `mapBrush.value`. No manual inverse-projection.
-9. **`filtered`** — reactive derivation of the visible event set from `yearRange`, `magThreshold`, `regionFocus`. A second derivation `filteredInBrush = mapBrush ?? filtered` narrows by the brush selection when present and falls back to the full filtered set when not. No manual inverse-projection is required.
+8. **`selectedHex`** (`Mutable`) + **`setSelectedHex(v)`** setter — *Revised (option E):* renamed from `mapBrush` to reflect the click-to-select-hex semantics. This cell declares `const selectedHex = Mutable(null); function setSelectedHex(v) { selectedHex.value = v; }` and exports both. The map cell (11) attaches a `click` event listener to the rendered Plot DOM node; on click, it reads `plot.value` (the closest event to the cursor, surfaced by Plot.pointer in cell 11), looks up that event's lat/lon-grid cell in `eventsByCell` (cell 9), and calls `setSelectedHex(events_in_cell)`. **Framework reactivity rule:** cells that *consume* a `Mutable` see only the current value, not the Mutable object — so cell 11 cannot write `selectedHex.value` directly. The setter pattern bridges the gap. `null` clears the panel.
+9. **`filtered`** + **`eventsByCell`** — reactive derivation of the visible event set from `yearRange`, `magThreshold`, `regionFocus`. *Revised (option E):* a companion derivation `eventsByCell = d3.group(filtered, q => \`${Math.floor(q.latitude/5)},${Math.floor(q.longitude/5)}\`)` precomputes a lat/lon-grid lookup (5° cells) used by the click handler in cell 11 to resolve "which events are in the same hex as the focused event". The grid resolution (5°) approximates the visual hex density at world view (`binWidth: 12px`) without depending on Plot's internal projection — the cell lookup uses each event's own lat/lon, no `projection.invert` required. **This is an approximation:** the visual hexes are drawn in screen space after projection, so a click near a region boundary may bucket into a cell that overlaps the visual hex by ~80–90% rather than exactly. Acceptable for v1; the user-facing semantic ("click to see top events in this region") is preserved.
 10. **`projection`** — derived from `regionFocus`; passes `{type: "equal-earth", rotate: [...]}` into `Plot.plot`.
-11. **`mapView`** — assigns the rendered Plot to a local variable, attaches the brush listener, and calls `display(plot)`:
+11. **`mapView`** — assigns the rendered Plot to a local variable, attaches the **pointer + click** listener, and calls `display(plot)`:
     ```js
     const plot = Plot.plot({
       projection,
       marks: [
         Plot.geo(countriesFeature, {fill: pg.lightQuartz, stroke: "white"}),
-        Plot.hexbin(filtered, {x: "longitude", y: "latitude", binWidth: 12, fill: "count"}),
-        Plot.brush({x: "longitude", y: "latitude"})
+        Plot.dot(
+          filtered,
+          Plot.hexbin(
+            {fill: "count"},
+            {x: "longitude", y: "latitude", binWidth: 12, r: 8, stroke: "none"}
+          )
+        ),
+        Plot.dot(filtered, Plot.pointer({px: "longitude", py: "latitude", r: 0, opacity: 0}))
       ],
       color: {
         type: "sqrt",
@@ -61,47 +69,47 @@ The original Notebook choice was made assuming an interactive web-UI authoring l
         label: "Events per hex"
       }
     });
-    plot.addEventListener("input", () => mapBrush.value = plot.value);
+    plot.addEventListener("click", () => {
+      const focused = plot.value;
+      if (!focused) { setSelectedHex(null); return; }
+      const key = `${Math.floor(focused.latitude/5)},${Math.floor(focused.longitude/5)}`;
+      setSelectedHex(eventsByCell.get(key) ?? []);
+    });
     display(plot);
     ```
-    *Revised:* primary mark is `Plot.hexbin` (binWidth ≈ 12px, sequential single-hue ramp from `pg.lightQuartz` → `pg.alloy`, no red endpoint), with `Plot.dot` reserved for focused regions whose visible event count falls below ~8000. The color scale is sqrt-transformed because hex counts in seismicity are heavy-tailed (most hexes contain a handful of events; a few near subduction zones contain hundreds) — a linear scale would render the long tail invisible. **Performance argument:** ~75k reactive `Plot.dot` redraws exceed the slides' "rapid, fluid response" requirement (≥250 ms slider lag in informal benchmarks); hexbin keeps filter response under 250 ms and tells the plate-boundary story more clearly than overplotted semi-transparent dots at global scale, which collapse to a uniform smear along the Ring of Fire. The hexbin grid itself *is* the plate boundary at world zoom. **Selection:** dot view kicks in automatically when the active region is non-`World` and the filtered event count drops below the 8000 threshold.
+    *Revised (option E):* `Plot.brush` doesn't exist in Plot 0.6.17. Replaced with a **Plot.pointer mark** (invisible — `r: 0`, `opacity: 0`) wrapped over the underlying events with `px`/`py` channels set to `longitude`/`latitude`. Plot.pointer surfaces the closest event to the cursor as `plot.value` on hover. The DOM `click` listener reads `plot.value`, looks up the focused event's 5° lat/lon grid cell in `eventsByCell` (cell 9), and writes the cell's events to `selectedHex` via `setSelectedHex`.
+    `Plot.hexbin` is a **transform**, not a mark — it groups data into hex cells, computes a per-cell reducer (`count`), and hands the binned positions/counts to an outer `Plot.dot` which renders them as filled hex shapes (because `Plot.dot` under `hexbin` draws hexes when `binWidth` is set, with `r` controlling cell radius). Sequential single-hue ramp from `pg.lightQuartz` → `pg.alloy`, no red endpoint, on a sqrt scale (heavy-tailed counts). The color scale is sqrt-transformed because hex counts in seismicity are heavy-tailed (most hexes contain a handful of events; a few near subduction zones contain hundreds) — a linear scale would render the long tail invisible. **Performance argument:** ~75k reactive `Plot.dot` redraws exceed the slides' "rapid, fluid response" requirement (≥250 ms slider lag in informal benchmarks); hexbin keeps filter response under 250 ms and tells the plate-boundary story more clearly than overplotted semi-transparent dots at global scale.
 12. **`magHistogram`** — companion histogram of magnitudes in the filtered set. `Plot.rectY({y: count, x: "mag", interval: 0.1})`. Re-renders on every filter change — demonstrates linked views.
-13. **`yearBrush`** — *Revised: required, not optional.* Yearly bar chart of event counts with `Plot.brushX` as an interactive transform. Framework wiring (made explicit per review):
+13. **`yearStrip`** — *Revised (option E): demoted from interactive `yearBrush` to a passive `yearStrip`.* Plot 0.6.17 has no `Plot.brushX` either, so the time-strip brush plan is dropped. The strip is now a passive overview chart that re-renders whenever `filtered` changes; year filtering is via the cell 5 slider only.
     ```js
-    const stripPlot = Plot.plot({
+    display(Plot.plot({
       height: 90,
+      x: {label: null},
+      y: {label: "events / year", grid: true},
       marks: [
-        Plot.rectY(filtered, Plot.binX({y: "count"},
-          {x: d => +d.time.slice(0,4), interval: 1, fill: pg.darkStone})),
-        Plot.brushX({x: d => +d.time.slice(0,4)})
+        Plot.rectY(filtered, Plot.binX(
+          {y: "count"},
+          {x: d => d.time.getFullYear(), interval: 1, fill: pg.darkStone}
+        ))
       ]
-    });
-    stripPlot.addEventListener("input", () => {
-      const sel = stripPlot.value;
-      if (sel?.length) {
-        const yrs = sel.map(d => +d.time.slice(0,4));
-        yearRangeInput.value = [Math.min(...yrs), Math.max(...yrs)];
-        yearRangeInput.dispatchEvent(new Event("input", {bubbles: true}));
-      }
-    });
-    display(stripPlot);
+    }));
     ```
-    The two-way binding writes back into the slider's `yearRangeInput` and dispatches an `input` event so `Generators.input` picks it up; the slider's own `input` events do not write back into `stripPlot.value` (the brush mark is data-bound, not interval-bound), but since both controls write to the same `yearRange` reactive value, the upstream `filtered` derivation re-fires once and both views re-render coherently — no infinite-loop risk because the brush listener only fires on user interaction, not on programmatic value updates. This is the cleanest demonstration of "brushing" in the course vocabulary and is required in v1.
-14. **`detailPanel`** — *Revised:* shows the **top 5 largest events** inside the current `mapBrush`, sorted by magnitude descending. Each row: place name, magnitude with type (e.g. "M 6.4 (Mw)"), depth (km), ISO time, and a link to the USGS event page constructed as `https://earthquake.usgs.gov/earthquakes/eventpage/${id}`. If `mapBrush` is null, shows a single-line hint ("Drag a box on the map to inspect the largest events in that region"). **No offline geospatial join, no plate-boundary distance** — both removed for v1.
+    No event listeners, no Mutable writes — the strip just visualizes the count distribution of `filtered` over time. The user is free to read it as a passive small-multiple alongside the map.
+14. **`detailPanel`** — *Revised (option E):* shows the **top 5 largest events** inside the current `selectedHex`, sorted by magnitude descending. Each row: place name, magnitude with type (e.g. "M 6.4 (Mw)"), depth (km), ISO time, and a link to the USGS event page constructed as `https://earthquake.usgs.gov/earthquakes/eventpage/${id}`. If `selectedHex` is null, shows a single-line hint ("**Click a hex on the map to inspect the largest events in that region.**"). **No offline geospatial join, no plate-boundary distance** — both removed for v1.
 15. **`resetCell`** — Framework button pattern:
     ```js
     const reset = Inputs.button("Reset all filters", {reduce: () => {
       yearRangeInput.value = [1980, 2025]; yearRangeInput.dispatchEvent(new Event("input", {bubbles: true}));
       magThresholdInput.value = 5.0;       magThresholdInput.dispatchEvent(new Event("input", {bubbles: true}));
       regionFocusInput.value = "World";    regionFocusInput.dispatchEvent(new Event("input", {bubbles: true}));
-      mapBrush.value = null;
+      setSelectedHex(null);
     }});
     display(reset);
     ```
     Reversibility per the course-level definition.
 16. **Methods + sources footer** (markdown). Cites USGS ANSS ComCat, links to FDSN web service docs, lists tooling (Observable Plot, Claude Code). Also notes: USGS preferred magnitudes are heterogeneous across the catalog (Mw, mb, ML, Ms); for visualization purposes the catalog is treated as a single magnitude axis.
 
-State flow: `yearRange ↔ yearBrush`, `magThreshold`, `regionFocus` are upstream of `filtered`; `filtered` feeds `mapView`, `magHistogram`, `yearBrush`. `mapBrush` is downstream of `mapView` brush events (set by the `input` event listener attached to the rendered `Plot.plot(...)` DOM node) and feeds `detailPanel` via the `filteredInBrush` derivation. Framework's reactive runtime (the same dataflow engine as observablehq.com Notebooks) resolves dependencies between cells — no manual subscriptions across cells, only the in-cell DOM listeners that bridge Plot output to `Mutable` values.
+State flow: `yearRange`, `magThreshold`, `regionFocus` are upstream of `filtered`; `filtered` feeds `mapView`, `magHistogram`, `yearStrip`, and `eventsByCell` (the lookup for the click handler). `selectedHex` is downstream of `mapView` click events (set by the `click` event listener attached to the rendered `Plot.plot(...)` DOM node, which reads `plot.value` from the Plot.pointer transform and looks up the lat/lon-grid cell in `eventsByCell`) and feeds `detailPanel`. Framework's reactive runtime resolves dependencies between cells — no manual subscriptions across cells, only the in-cell DOM listeners that bridge Plot output to `Mutable` values via the setter.
 
 ### Magnitude slider range
 
@@ -117,9 +125,8 @@ State flow: `yearRange ↔ yearBrush`, `magThreshold`, `regionFocus` are upstrea
 
 In the course vocabulary from slides/05.2_interactive_visualizations.pdf:
 
-1. **Temporal filtering / scrubbing** — year-range slider re-derives the visible event set across map + time strip + histogram. Two-way bound to the time-strip brush.
-2. **Brushing (time)** — `Plot.brushX` over the yearly time strip; drag a window to filter all views. *Revised:* required in v1.
-3. **Brushing (space)** — `Plot.brush` over the map produces a bounding box that drives the detail panel's top-5 ranked list. *Revised:* this replaces the original click-on-dot interaction. Per-mark click handling in `Plot` requires post-render `d3.select` and is unreliable for overlapping/overplotted dots at global scale; brush is native to Plot and produces a more useful detail view (a ranked list, not a single ambiguous point).
+1. **Temporal filtering / scrubbing** — year-range slider (cell 5) re-derives the visible event set across map + histogram + year-strip.
+2. **Selection (click-to-select-hex)** — *Revised (option E):* click a hex on the map; Plot.pointer surfaces the closest event under the cursor, the click listener buckets that event's lat/lon into a 5° grid cell and writes the cell's events to `selectedHex`. The detail panel shows the top-5 sorted by magnitude descending. Replaces the previous "Brushing (space)" entry — Plot 0.6.17 has no brush primitives.
 4. **Filtering (magnitude)** — magnitude-threshold slider re-derives the visible set on the magnitude axis.
 5. **Region focus / encoding remap** — region selector both filters quakes to a bounding box *and* swaps the projection rotation (filtering combined with encoding adjustment).
 6. **Reset** — full reversibility, required by the course-level definition.
@@ -154,7 +161,7 @@ In `portfolio/portfolio.qmd`, immediately after the Task 11 section (`\newpage`)
 ```{=latex}
 \begin{center}
 {\fontsize{14pt}{17pt}\selectfont\color{onyx}\textbf{Where the Earth's plates actually grind: 45 years of M≥5 earthquakes.}}\\[0.4em]
-{\fontsize{11pt}{14pt}\selectfont\color{alloy} Year-range slider, magnitude threshold, region focus, brushable time strip, and brush-the-map for detail. The Pacific Ring of Fire emerges only when 45 years of seismicity are allowed to accumulate.}
+{\fontsize{11pt}{14pt}\selectfont\color{alloy} Year-range slider, magnitude threshold, region focus, and click-a-hex for the top events in that region. The Pacific Ring of Fire emerges only when 45 years of seismicity are allowed to accumulate.}
 \end{center}
 ```
 
@@ -228,15 +235,15 @@ In `portfolio/portfolio.qmd`, immediately after the Task 11 section (`\newpage`)
 End-to-end checks before declaring task complete:
 
 1. **Data integrity**: `prep.R` prints row count, year range, magnitude min/max/median; cross-checked against USGS catalog summary (expected ~70k–80k events 1980–2025 at M≥5.0).
-2. **Course-definition compliance**: at least four of {selection, filtering, linking, drill-down, encoding remapping, brushing, temporal scrubbing} are present and demonstrably wired. v1 ships with: filtering (magnitude), filtering (year via slider), brushing (time strip), brushing (map), encoding remap (region → projection), reset (reversibility) → six interactions, well above the four-interaction floor.
+2. **Course-definition compliance**: at least four of {selection, filtering, linking, drill-down, encoding remapping, brushing, temporal scrubbing} are present and demonstrably wired. v1 ships with: **selection** (click-to-select-hex), **filtering** (magnitude slider), **filtering / temporal scrubbing** (year slider), **encoding remap** (region → projection rotation), **drill-down / linking** (click on map → detail panel renders top-5 events for that region), **reversibility** (reset button) → five qualifying interactions plus reset, comfortably above the four-interaction floor. **Brushing dropped** (Plot 0.6.17 has no brush primitives).
 3. **Public reachability**: open the deployed GitHub Pages URL in a fresh incognito browser (no GitHub or Observable account) — interactive must function fully without any sign-in prompt.
 4. **TopoJSON decoder**: confirm that the basemap is built from `topojson.feature(world, world.objects.countries)`, not from raw `world.features` (which would silently fail with the world-atlas v2 schema).
 5. **Slider response**: dragging `yearRange` from 1980 → 2025 in one continuous gesture completes the visual update of map + histogram + time strip in **<250 ms** on the test machine. If not, drop to `binWidth: 16` on hexbin or downsample to M≥5.5.
-6. **Map brush yields detail**: dragging a non-empty brush over any continental landmass produces a non-empty top-5 list in the detail panel. The hint string is shown only when `mapBrush` is `null`.
+6. **Click-to-select-hex yields detail**: clicking on a populated hex (anywhere with visible event density) populates `selectedHex` with the events in the corresponding 5° lat/lon grid cell; the detail panel shows top-5 sorted by magnitude descending, each with a USGS link. The hint string is shown only when `selectedHex` is `null`.
 7. **Pacific Ring projection**: when `regionFocus = "Pacific Ring of Fire"`, the rotated `equal-earth` projection renders the arc as a single continuous shape (no antimeridian cut bisecting Indonesia / the Aleutians).
 8. **USGS event links resolve**: pick three random rows from the detail panel; click each link; confirm each lands on a live USGS event page (HTTP 200, page title contains "M *.* - *").
 9. **Performance**: filter changes render in <250 ms on the test machine; if not, downsample as documented in the data pipeline.
-10. **Design-system fidelity**: every fill / stroke colour resolves to a `design_system.R` token via the `pg` JS object; no rainbow / jet; map basemap in `lightQuartz`; hexbin ramp `lightQuartz → alloy`; selection / brush rectangle in `heritageRed`.
+10. **Design-system fidelity**: every fill / stroke colour resolves to a `design_system.R` token via the `pg` JS object; no rainbow / jet; map basemap in `lightQuartz`; hexbin ramp `lightQuartz → alloy`; selected-hex highlight (where applicable) in `heritageRed`.
 11. **Equal-area projection**: confirm `Plot.plot({projection: {type: "equal-earth", rotate: [...]}})` is in use across all three region variants — Mercator would inflate Alaska / Russia and distort the seismic story.
 12. **Portfolio render**: `quarto render portfolio.qmd` succeeds; new page renders with title, screenshot, live URL (clickable in PDF), and source citation.
 13. **Reference log**: Task 12 block in `reference_log.md` is filled with data source URL, local file path, AI tool used, public GitHub Pages URL, status `v1`.
