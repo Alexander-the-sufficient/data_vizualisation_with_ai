@@ -1,0 +1,7 @@
+.DS_Store
+.ds_store
+
+# Framework dev / build artefacts
+interactive/task_12/node_modules/
+interactive/task_12/dist/
+interactive/task_12/src/.observablehq/
