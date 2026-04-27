@@ -1,0 +1,61 @@
+# Build the Observable Framework project at interactive/task_12/ and
+# publish dist/ to GitHub Pages. Pages must be enabled in repo settings
+# (Settings → Pages → Source: GitHub Actions) before this workflow's
+# first run — that step is intentionally manual; see PLAN.md.
+name: Deploy task 12
+
+on:
+  push:
+    branches: [main]
+    paths:
+      # Path-filtered so unrelated portfolio commits don't rebuild.
+      - "interactive/task_12/**"
+      - ".github/workflows/deploy-task-12.yml"
+  workflow_dispatch: {}
+
+# Required for actions/deploy-pages to publish.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# A new push cancels any deploy currently in flight; never run two at once.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: interactive/task_12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: interactive/task_12/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Framework project
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: interactive/task_12/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
