@@ -175,10 +175,119 @@ plot.addEventListener("click", () => {
 display(plot);
 ```
 
+## Magnitude distribution
+
+```js
+// Cell 12 — magHistogram. Plot.binX with interval 0.1 buckets the filtered
+// events by magnitude; Plot.rectY renders the count per bucket. Single
+// solid fill (pg.darkStone) — this is a count distribution, not a
+// magnitude-encoded view, so no gradient. Re-renders on every filter
+// change — the linked-views demonstration.
+display(Plot.plot({
+  height: 180,
+  marginLeft: 50,
+  x: {label: "Magnitude →", labelAnchor: "right"},
+  y: {label: "↑ events", grid: true},
+  marks: [
+    Plot.rectY(filtered, Plot.binX(
+      {y: "count"},
+      {x: "mag", interval: 0.1, fill: pg.darkStone}
+    )),
+    Plot.ruleY([0], {stroke: pg.alloy})
+  ]
+}));
+```
+
+## Events per year
+
+```js
+// Cell 13 — passive year strip. No interactive transform — the year-range
+// slider in cell 5 is the time control. The strip is visual context only:
+// a yearly count of `filtered`, redrawn on every filter change. Same
+// pg.darkStone single fill as the magnitude histogram for visual
+// consistency between the two distribution panels.
+display(Plot.plot({
+  height: 110,
+  marginLeft: 50,
+  x: {label: null, tickFormat: "d"},
+  y: {label: "↑ events / year", grid: true},
+  marks: [
+    Plot.rectY(filtered, Plot.binX(
+      {y: "count"},
+      {x: d => d.time.getFullYear(), interval: 1, fill: pg.darkStone}
+    )),
+    Plot.ruleY([0], {stroke: pg.alloy})
+  ]
+}));
+```
+
+## Reset
+
+```js
+// Cell 15 — reset button. Restores all four pieces of state to their
+// defaults: yearRange [1980, 2025], magThreshold 5.0, regionFocus
+// "World", selectedHex null. Each input is updated by writing to its
+// .value and dispatching an "input" event so Generators.input picks up
+// the change. The Inputs.form for yearRange takes a {start, end} value
+// object and propagates to its children.
+display(Inputs.button("Reset all filters", {reduce: () => {
+  yearRangeInput.value = {start: 1980, end: 2025};
+  yearRangeInput.dispatchEvent(new Event("input", {bubbles: true}));
+  magThresholdInput.value = 5.0;
+  magThresholdInput.dispatchEvent(new Event("input", {bubbles: true}));
+  regionFocusInput.value = "World";
+  regionFocusInput.dispatchEvent(new Event("input", {bubbles: true}));
+  setSelectedHex(null);
+}}));
+```
+
+## Selected hex — top events
+
+```js
+// Cell 14 — detailPanel. Reads selectedHex (the array of events in the
+// 5° lat/lon cell of the most recently clicked hex). When null, shows
+// the hint. Otherwise renders the top 5 events sorted by magnitude
+// descending in a plain HTML table — styling lives in step 5 polish.
+display(html`<div style="margin: 1em 0">
+  ${selectedHex == null
+    ? html`<p style="color:${pg.darkStone};font-style:italic">
+        Click a hex on the map to inspect the largest events in that region.
+      </p>`
+    : selectedHex.length === 0
+      ? html`<p style="color:${pg.darkStone};font-style:italic">
+          No events in that cell at the current filter settings.
+        </p>`
+      : html`<table style="border-collapse:collapse;font-size:0.9rem;width:100%;max-width:900px">
+          <thead>
+            <tr style="border-bottom:1px solid ${pg.alloy};text-align:left">
+              <th style="padding:6px 10px">Place</th>
+              <th style="padding:6px 10px">Magnitude</th>
+              <th style="padding:6px 10px">Depth</th>
+              <th style="padding:6px 10px">Date</th>
+              <th style="padding:6px 10px">USGS</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${selectedHex
+              .slice()
+              .sort((a, b) => b.mag - a.mag)
+              .slice(0, 5)
+              .map(q => html`<tr style="border-bottom:1px solid ${pg.lightQuartz}">
+                <td style="padding:6px 10px">${q.place}</td>
+                <td style="padding:6px 10px;font-variant-numeric:tabular-nums">M ${q.mag.toFixed(1)} (${q.magType})</td>
+                <td style="padding:6px 10px;font-variant-numeric:tabular-nums">${q.depth} km</td>
+                <td style="padding:6px 10px;font-variant-numeric:tabular-nums">${q.time.toISOString().slice(0,10)}</td>
+                <td style="padding:6px 10px"><a href="https://earthquake.usgs.gov/earthquakes/eventpage/${q.id}" target="_blank" rel="noopener">event ↗</a></td>
+              </tr>`)}
+          </tbody>
+        </table>`}
+</div>`);
+```
+
 ```js
 // Smoke-test debug strip. Confirms the reactive chain wires through and
-// surfaces the brush state. Removed in step 5 polish.
-display(html`<details style="font-size:0.85rem;color:#7E8182">
+// surfaces the selectedHex state. Removed in step 5 polish.
+display(html`<details style="font-size:0.85rem;color:${pg.darkStone}">
   <summary>Debug</summary>
   <ul>
     <li><code>quakes.length</code>: ${quakes.length.toLocaleString()}</li>
@@ -193,4 +302,4 @@ display(html`<details style="font-size:0.85rem;color:#7E8182">
 
 ---
 
-*Cells 12–15 (magnitude histogram, brushable year-strip with two-way binding, detail panel with USGS event links, reset button) — incoming in step 4.*
+*Cells 13–15 (passive year strip, detail panel with USGS event links, reset button) — incoming.*
