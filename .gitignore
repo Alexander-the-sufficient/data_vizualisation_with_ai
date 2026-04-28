@@ -14,3 +14,11 @@ interactive/task_12/src/.observablehq/
 Rplots.pdf
 *.Rhistory
 **/.Rhistory
+
+# Course materials (delivered via Canvas, not part of the deliverable)
+slides/
+syllabus_*.pdf
+
+# Per-task data fetch intermediates — the tidy CSV next to them is the
+# source of truth; batches are regeneratable from the prep scripts.
+data/*/batches/
