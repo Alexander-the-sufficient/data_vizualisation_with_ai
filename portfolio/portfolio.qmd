@@ -255,26 +255,23 @@ Workflow notes:
 
 \newpage
 
-# Task 12 --- Interactive: 45 Years of Earthquakes
+# Task 12 --- Interactive
 
 ```{=latex}
 \begin{center}
-{\fontsize{14pt}{17pt}\selectfont\color{onyx}\textbf{Where the Earth's plates actually grind: 45 years of M$\geq$5 earthquakes.}}\\[0.4em]
-{\fontsize{11pt}{14pt}\selectfont\color{alloy} Year-range slider, magnitude threshold, region focus, and click-a-hex for the top events in that region. The Pacific Ring of Fire, Mediterranean--Himalaya belt, Mid-Atlantic Ridge, and East African Rift emerge only when 45 years of seismicity are allowed to accumulate. Hosted on GitHub Pages via Observable Framework.}
+{\fontsize{14pt}{16pt}\selectfont\color{onyx}\textbf{Plate boundaries draw themselves: 75,000 M$\geq$5 earthquakes, 1980--2025.}}\\[0.3em]
+{\fontsize{10pt}{12pt}\selectfont\color{alloy} Each event is a single dot, alpha-stacked into a carpet; M$\geq$7 events appear in heritage red, sized by magnitude. Plate boundaries (Bird, 2003) overlaid in onyx. Dual-handle year window, magnitude threshold, zoom presets, click-a-country to filter every panel. Hosted on GitHub Pages via Observable Framework.}
 \end{center}
+\vspace{-0.4em}
 ```
 
-![](../final/task_12/state_overview.png){fig-align="center" width="62%"}
+![](../final/task_12/state_overview.png){fig-align="center" width="86%"}
 
 ```{=latex}
+\vspace{-0.6em}
 \begin{center}
-{\fontsize{11pt}{14pt}\selectfont\color{alloy} Try it live: \url{https://alexander-the-sufficient.github.io/data_vizualisation_with_ai/task_12/}}
-\end{center}
-```
-
-```{=latex}
-\begin{center}
-{\footnotesize\color{darkstone}\itshape Source: USGS Earthquake Hazards Program, ANSS Comprehensive Earthquake Catalog (ComCat), via the FDSN event web service. \url{https://earthquake.usgs.gov/fdsnws/event/1/}}
+{\fontsize{10pt}{12pt}\selectfont\color{alloy}\textbf{Try it live:} \url{https://alexander-the-sufficient.github.io/data_vizualisation_with_ai/task_12/?v=2026-04-29}}\\[0.15em]
+{\footnotesize\color{darkstone}\itshape Source: USGS ANSS Comprehensive Earthquake Catalog. \url{https://earthquake.usgs.gov/fdsnws/event/1/}}
 \end{center}
 ```
 

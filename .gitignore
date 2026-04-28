@@ -5,3 +5,12 @@
 interactive/task_12/node_modules/
 interactive/task_12/dist/
 interactive/task_12/src/.observablehq/
+
+# Local tooling caches
+.claude/
+.playwright-mcp/
+
+# R session leftovers
+Rplots.pdf
+*.Rhistory
+**/.Rhistory
