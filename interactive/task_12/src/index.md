@@ -624,6 +624,15 @@ calloutG.append("text").attr("class", "callout-label")
 
 const zoom = d3.zoom()
   .scaleExtent([1, 32])
+  // Constrain pan: the visible window must always lie inside the
+  // world's [0,0]–[width,height] box. Without this the user can drag
+  // the map off into empty cream space; with it, the map "pushes
+  // back" against the viewport edge so you stay over content. d3
+  // clamps preset transforms to these bounds too — at k=2.2, a
+  // preset that would center on the dateline gets clamped to keep
+  // the right edge of the world flush with the viewport.
+  .extent([[0, 0], [width, height]])
+  .translateExtent([[0, 0], [width, height]])
   .on("zoom", (ev) => {
     const k = ev.transform.k;
     zoomRoot.attr("transform", ev.transform);
@@ -652,9 +661,17 @@ if (presetChanged) {
   let t;
   if (ap.k !== 1) {
     const xy = projection(ap.center);
-    t = d3.zoomIdentity
-      .translate(width / 2 - ap.k * xy[0], height / 2 - ap.k * xy[1])
-      .scale(ap.k);
+    let tx = width / 2 - ap.k * xy[0];
+    let ty = height / 2 - ap.k * xy[1];
+    // Clamp to the same bounds the user-drag clamp uses, so a preset
+    // targeting a point near the world edge (e.g. Ring of Fire on the
+    // dateline) doesn't pan past empty cream — d3.zoom's clamp only
+    // fires on user input, so programmatic transforms have to clamp
+    // themselves. Same math d3 uses internally: the transformed world
+    // rect must contain the viewport.
+    tx = Math.max(width * (1 - ap.k), Math.min(0, tx));
+    ty = Math.max(height * (1 - ap.k), Math.min(0, ty));
+    t = d3.zoomIdentity.translate(tx, ty).scale(ap.k);
   } else {
     t = d3.zoomIdentity;
   }
