@@ -157,6 +157,9 @@ toc: false
   .t12-event-table tr:last-child td { border-bottom: none; }
   .t12-event-table a { color: var(--t12-heritage-red); text-decoration: none; font-size: 0.82rem; }
   .t12-event-table a:hover { text-decoration: underline; }
+  .t12-event-table tbody tr { cursor: pointer; transition: background-color 0.12s ease; }
+  .t12-event-table tbody tr:hover { background-color: rgba(0, 0, 0, 0.025); }
+  .t12-event-table tbody tr.is-selected td { background-color: rgba(217, 43, 43, 0.06); }
 
   /* ---------- Empty state ---------- */
   .t12-empty { background: transparent; padding: 2.6em 1.6em; border-radius: var(--t12-radius); border: 1px solid var(--t12-light-quartz); color: var(--t12-dark-stone); font-style: italic; font-size: 0.95rem; line-height: 1.55; max-width: 700px; margin: 0 auto; text-align: center; }
@@ -385,9 +388,16 @@ function setPreset(key) {
 ```
 
 ```js
-// Cell 8 — selectedCountry mutable + setter.
+// Cell 8 — selectedCountry + selectedEvent mutables + setters.
 const selectedCountry = Mutable(null);
-function setSelectedCountry(v) { selectedCountry.value = v; }
+function setSelectedCountry(v) {
+  selectedCountry.value = v;
+  // Clearing the country also clears any pinned event — its ring would
+  // otherwise dangle on the map after the country detail card disappears.
+  if (v == null) selectedEvent.value = null;
+}
+const selectedEvent = Mutable(null);
+function setSelectedEvent(v) { selectedEvent.value = v; }
 ```
 
 ```js
@@ -616,6 +626,25 @@ calloutG.append("circle").attr("class", "callout-ring")
   .attr("r", 11).attr("fill", "none")
   .attr("stroke", pg.heritageRed).attr("stroke-width", 1.6)
   .attr("vector-effect", "non-scaling-stroke");
+
+// Pinned-event ring — drawn when the user clicks a row in the country
+// detail table. Sits in zoomRoot so it tracks pan/zoom; radius is
+// counter-scaled by the zoom handler so it stays a fixed on-screen size
+// at every zoom level. Two concentric circles read clearly on top of
+// either the carpet (light alloy stipple) or the heritage-red highlight
+// dots, on either land or ocean: an outer white halo + inner heritage
+// red ring. No fill — the ring frames the existing dot rather than
+// covering it.
+const pinnedG = zoomRoot.append("g").attr("class", "pinned-event").style("pointer-events", "none").style("display", "none");
+pinnedG.append("circle").attr("class", "pinned-halo")
+  .attr("r", 9).attr("fill", "none")
+  .attr("stroke", "#FFFFFF").attr("stroke-width", 3.2)
+  .attr("stroke-opacity", 0.95)
+  .attr("vector-effect", "non-scaling-stroke");
+pinnedG.append("circle").attr("class", "pinned-ring")
+  .attr("r", 9).attr("fill", "none")
+  .attr("stroke", pg.heritageRedDark).attr("stroke-width", 1.6)
+  .attr("vector-effect", "non-scaling-stroke");
 calloutG.append("text").attr("class", "callout-label")
   .attr("text-anchor", "middle")
   .attr("font-size", 11).attr("font-weight", 600)
@@ -644,6 +673,12 @@ const zoom = d3.zoom()
     // which still reads as a stipple, not blobs.
     highlightLayer.selectAll("circle.major")
       .attr("r", d => Math.max(2.2, (d.q.mag - 6) * 2.2) / Math.max(1, Math.sqrt(k)));
+    // Pinned-event ring counter-scales with the same factor the major
+    // highlights use — the ring stays a fixed ~9 px on screen across
+    // the whole zoom range, so it always reads as the same affordance.
+    const pinnedR = 9 / Math.max(1, Math.sqrt(k));
+    pinnedG.select("circle.pinned-halo").attr("r", pinnedR);
+    pinnedG.select("circle.pinned-ring").attr("r", pinnedR);
     window.__t12_zoom__ = ev.transform;
   });
 svg.call(zoom);
@@ -735,6 +770,28 @@ const mapContext = {svg, projection, largestEvent, pathFn};
     sel.select("circle.callout-ring").style("display", "none");
     sel.select("text.callout-label").style("display", "none");
   }
+
+  // Pinned event — render only if the event is in the current country
+  // scope, so a stale selection from a prior country/filter doesn't
+  // dangle. Two concentric circles (white halo + heritage red ring),
+  // counter-scaled by the live zoom so the ring stays ~9 px on screen.
+  const pinnedG = sel.select("g.pinned-event");
+  const ev = selectedEvent;
+  const inScope = ev != null && filteredCountry.some(q => q.id === ev.id);
+  if (inScope) {
+    const xy = mapContext.projection([ev.longitude, ev.latitude]);
+    if (xy) {
+      const k = (window.__t12_zoom__ && window.__t12_zoom__.k) || 1;
+      const r = 9 / Math.max(1, Math.sqrt(k));
+      pinnedG.style("display", null);
+      pinnedG.select("circle.pinned-halo").attr("cx", xy[0]).attr("cy", xy[1]).attr("r", r);
+      pinnedG.select("circle.pinned-ring").attr("cx", xy[0]).attr("cy", xy[1]).attr("r", r);
+    } else {
+      pinnedG.style("display", "none");
+    }
+  } else {
+    pinnedG.style("display", "none");
+  }
 }
 ```
 
@@ -800,14 +857,17 @@ const countryCard = (() => {
     .attr("fill", pg.lightQuartz)
     .attr("stroke", pg.alloy).attr("stroke-width", 0.7)
     .attr("vector-effect", "non-scaling-stroke");
-  insetG.selectAll("circle")
+  insetG.selectAll("circle.event")
     .data(top5)
     .join("circle")
+    .attr("class", "event")
     .attr("cx", q => insetProj([q.longitude, q.latitude]) ? insetProj([q.longitude, q.latitude])[0] : -100)
     .attr("cy", q => insetProj([q.longitude, q.latitude]) ? insetProj([q.longitude, q.latitude])[1] : -100)
     .attr("r", q => Math.max(2.2, (q.mag - 4.5) * 2.2))
-    .attr("fill", pg.heritageRed).attr("fill-opacity", 0.55)
-    .attr("stroke", pg.heritageRedDark).attr("stroke-width", 0.9);
+    .attr("fill", q => selectedEvent && selectedEvent.id === q.id ? pg.heritageRedDark : pg.heritageRed)
+    .attr("fill-opacity", q => selectedEvent && selectedEvent.id === q.id ? 0.95 : 0.55)
+    .attr("stroke", pg.heritageRedDark)
+    .attr("stroke-width", q => selectedEvent && selectedEvent.id === q.id ? 1.8 : 0.9);
 
   return html`<div class="t12-country-card">
     <div class="t12-country-card-header">
@@ -841,12 +901,23 @@ const countryCard = (() => {
       </div>
       <table class="t12-event-table">
         <thead><tr><th>Place</th><th>M</th><th>Date</th><th></th></tr></thead>
-        <tbody>${top5.map(q => html`<tr>
-          <td>${q.place}</td>
-          <td class="num">${q.mag.toFixed(1)}</td>
-          <td class="num">${q.time.toISOString().slice(0,10)}</td>
-          <td><a href="https://earthquake.usgs.gov/earthquakes/eventpage/${q.id}" target="_blank" rel="noopener">USGS ↗</a></td>
-        </tr>`)}</tbody>
+        <tbody>${top5.map(q => {
+          const isSel = selectedEvent && selectedEvent.id === q.id;
+          // Click any cell except the USGS link → toggle pin for this
+          // event. Re-clicking the active row clears the pin so the user
+          // has a discoverable way to dismiss it without leaving the
+          // panel. The USGS anchor stops propagation so opening the
+          // canonical event page doesn't also toggle the pin.
+          const row = html`<tr class="${isSel ? 'is-selected' : ''}" title="Click to highlight on the map">
+            <td>${q.place}</td>
+            <td class="num">${q.mag.toFixed(1)}</td>
+            <td class="num">${q.time.toISOString().slice(0,10)}</td>
+            <td><a href="https://earthquake.usgs.gov/earthquakes/eventpage/${q.id}" target="_blank" rel="noopener">USGS ↗</a></td>
+          </tr>`;
+          row.onclick = () => setSelectedEvent(isSel ? null : q);
+          row.querySelector("a").addEventListener("click", e => e.stopPropagation());
+          return row;
+        })}</tbody>
       </table>
     </div>
   </div>`;

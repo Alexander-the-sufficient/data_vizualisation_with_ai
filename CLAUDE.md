@@ -302,6 +302,26 @@ Two page patterns are established in [portfolio/portfolio.qmd](portfolio/portfol
 
 Before moving any chart into `final/`, verify against the 11 instructor-emphasis rules listed above (lie factor, zero-baseline for bars, no double encoding, grayscale + colorblind-safe palette, choropleth normalization, data source visible, no chartjunk, etc.). Also verify the export format: every chart in `final/` is PDF or SVG (exceptions: hand-drawn scan, interactive screenshot, third-party images). If any check fails, fix or explicitly justify in `reference_log.md` notes.
 
+### Task 12 deployment (live URL)
+
+The interactive at https://alexander-the-sufficient.github.io/data_vizualisation_with_ai/task_12/ is **not** redeployed automatically when you save files locally. The dev server (`npm run dev` in `interactive/task_12/`) is for local previews only — the live site runs from GitHub Pages and only refreshes after a commit + push to `main`.
+
+**To make local changes go live:**
+
+1. Stage only the v11-relevant files — never `git add -A`:
+   - `interactive/task_12/src/**` (the project source)
+   - `interactive/task_12/src/data/quakes.csv` (only if data was regenerated)
+   - `iterations/task_12/v<N>/**` (the iteration audit folder)
+   - `reference_log.md` (the v<N> entry)
+2. Commit with the project's "task 12 vN: <imperative summary>" style (see `git log --oneline`).
+3. `git push origin main`.
+4. The `.github/workflows/deploy-task-12.yml` Action triggers on path-filtered pushes to `main` matching `interactive/task_12/**`. It runs `observable build`, wraps `dist/` inside `_site/task_12/` so the artifact lands at the `/task_12/` subpath, and deploys to Pages. Typical end-to-end is ~2 minutes; check `gh run list --workflow=deploy-task-12.yml --limit 1` for status.
+5. Hard-reload the live URL (cache-busted screenshot embeds in the portfolio PDF use a `?v=N` query string when needed).
+
+**What does NOT trigger a redeploy**: edits outside `interactive/task_12/**` and the workflow file itself (e.g. `reference_log.md` only, `iterations/task_12/v<N>/**` only). Those still belong in the same commit for traceability, but you also need at least one source file change to trigger the deploy. If a deploy is needed without source changes, run `gh workflow run deploy-task-12.yml` to fire it manually.
+
+**Cadence**: every meaningfully-shippable iteration of task 12 (each `v<N>`) gets its own commit and push so the public URL stays current with the iteration history. Don't batch multiple iterations into one commit — iteration visibility is graded (criterion #4) and a single commit collapses the history.
+
 ## Open items (to revisit)
 
 - Canvas submission deadline (not in the task brief).
