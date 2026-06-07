@@ -1,0 +1,448 @@
+---
+title: "Data Visualization Portfolio"
+subtitle: "From Prompt to Plot — Data Visualization with AI Copilots"
+author: "Alexander Weber (23-616-352)"
+date: today
+format:
+  pdf:
+    documentclass: article
+    classoption: [landscape, 11pt]
+    papersize: a4
+    geometry:
+      - top=15mm
+      - bottom=15mm
+      - left=18mm
+      - right=18mm
+    pdf-engine: xelatex
+    mainfont: "IBM Plex Sans"
+    sansfont: "IBM Plex Sans"
+    monofont: "IBM Plex Mono"
+    fontsize: 11pt
+    colorlinks: true
+    toc: false
+    number-sections: false
+    include-in-header:
+      text: |
+        \usepackage{fontspec}
+        \usepackage{xcolor}
+        \definecolor{heritagered}{HTML}{D92B2B}
+        \definecolor{heritagereddark}{HTML}{830011}
+        \definecolor{onyx}{HTML}{000000}
+        \definecolor{alloy}{HTML}{5C5B59}
+        \definecolor{darkstone}{HTML}{7E8182}
+        \definecolor{lightquartz}{HTML}{ECEAE4}
+        \usepackage{enumitem}
+        \setlist[itemize]{topsep=4pt}
+        \AtBeginDocument{\hypersetup{linkcolor=heritagereddark, urlcolor=heritagereddark, citecolor=heritagereddark}}
+        \AtBeginDocument{\renewcommand{\tightlist}{\setlength{\itemsep}{16pt}\setlength{\parskip}{0pt}}}
+---
+
+<!--
+Build: `quarto render portfolio.qmd` from the portfolio/ folder.
+Requires: Quarto + xelatex + Inter font installed (or change mainfont).
+Page layout: A4 landscape (297 × 210 mm) with 15–18 mm margins.
+
+Workflow notes:
+- Each task gets a `\newpage` so it starts on its own sheet.
+- Keep sections in the fixed order defined in CLAUDE.md (1 → 18).
+- Reference page (task 18) is assembled from reference_log.md at the end.
+-->
+
+```{=latex}
+\thispagestyle{empty}
+```
+
+\newpage
+
+```{=latex}
+\setcounter{page}{1}
+```
+
+# Task 1 — Critique of a Manipulative Visualization
+
+```{=latex}
+\noindent\begin{minipage}[t]{0.52\textwidth}
+\vspace{0pt}\centering
+\includegraphics[width=\linewidth,height=0.82\textheight,keepaspectratio]{../data/task_01/bad_example.jpeg}\\[0.5em]
+{\footnotesize\color{darkstone}\itshape Source: White House (2026)}
+\end{minipage}\hfill\begin{minipage}[t]{0.44\textwidth}
+\vspace{0pt}
+```
+
+*The most obvious issue is the truncated y-axis, which exaggerates the perceived change in steel production and creates an immense lie factor. On top of overstating the change, the chart also uses color encoding to further mislead the viewer. They make the fill of the prior year red and that of 2025 green, which in western societies conveys positive sentiment. They also add a green font to the "INCREASES" to really convey a positive development. They additionally cherry-pick a two-year comparison, which is not representative of the historical range of US steel production. Two data points are not enough to tell a story. A minor issue I don't like either is the naming of the x-axis, where in one instance the year is at the start and in another at the end.*
+
+```{=latex}
+\end{minipage}
+```
+
+\newpage
+
+# Task 2 — Improved Version
+
+```{=latex}
+\begin{center}
+{\fontsize{14pt}{17pt}\selectfont\color{onyx}\textbf{US raw steel production is 40\% below its 1973 peak --- and the 2024--2025 increase is noise.}}\\[0.4em]
+{\fontsize{11pt}{14pt}\selectfont\color{alloy} Annual US raw steel production, 1970--2025. Output peaked in 1973, roughly halved by the mid-1980s, and has held near 80\,Mt since 2010 --- the 2024--2025 uptick sits well inside that ordinary year-to-year noise.}
+\end{center}
+```
+
+![](../iterations/task_02/v5/steel_production_v5.pdf){fig-align="center" width="92%"}
+
+```{=latex}
+\vspace{-0.4em}
+\begin{center}
+{\footnotesize\color{darkstone}\itshape Source: USGS \& World Steel Association (2025)}
+\end{center}
+```
+
+\newpage
+
+# Task 3 — Critique of a Particularly Good Visualization
+
+```{=latex}
+\noindent\begin{minipage}[t]{0.52\textwidth}
+\vspace{0pt}\centering
+\includegraphics[width=\linewidth,height=0.82\textheight,keepaspectratio]{../data/task_03/rare_earths_di.png}\\[0.5em]
+{\footnotesize\color{darkstone}\itshape Source: Our World in Data (2026)}
+\end{minipage}\hfill\begin{minipage}[t]{0.44\textwidth}
+\vspace{0pt}
+```
+
+*This is a good visualization because it tells a clear story. This story is supported by the fact that the maker chose to sort the reserves by descending order, making the disparity between reserves and production immediately apparent. The chart uses color, but in a good way that makes the distinction between the two variables easy to see. The axis is not truncated and the bars lengths faithfully represent the data.*
+
+*There are some minor issues worth mentioning though. The visualization uses "selected countries" for the visualization, which leaves me to question what criteria determined which countries were included. The graph also shows percentages <0.1% which then are not truthful to the size of the bars. Finally, they include a measure of a country that does not have recorded reserves. This makes it questionable whether this is a valid data point.*
+
+```{=latex}
+\end{minipage}
+```
+
+\newpage
+
+# Task 4 — Climate-change Visualization
+
+```{=latex}
+\begin{center}
+{\fontsize{14pt}{17pt}\selectfont\color{onyx}\textbf{Silvrettagletscher has lost mass every year for 21 straight years.}}\\[0.4em]
+{\fontsize{11pt}{14pt}\selectfont\color{alloy} Annual mass balance of Silvrettagletscher (Eastern Swiss Alps), 1915--2025. 2004 was the last positive year; the 2022--2025 average loss of $-2.4$\,m water equivalent per year runs about nineteen times the 1915--1989 baseline.}
+\end{center}
+```
+
+![](../iterations/task_04/v8/glacier_mass_balance_v8.pdf){fig-align="center" width="85%"}
+
+```{=latex}
+\vspace{-0.4em}
+\begin{center}
+{\footnotesize\color{darkstone}\itshape Source: GLAMOS (2025)}
+\end{center}
+```
+
+\newpage
+
+# Task 5 — Black-and-white Visualization
+
+```{=latex}
+\begin{center}
+{\fontsize{14pt}{17pt}\selectfont\color{onyx}\textbf{Every surge in battle deaths is a war you can name --- and 2022 was the deadliest year on record.}}\\[0.4em]
+{\fontsize{11pt}{14pt}\selectfont\color{alloy} Global battle-related deaths in state-based armed conflicts, 1989--2024 (UCDP best estimate). Each major spike traces to a specific war: the Eritrea--Ethiopia war (1999--2000), the Syrian civil war and rise of IS (2014), and --- far above any prior year --- the 2022 surge from the Tigray war in Ethiopia ($\sim$162k) and Russia's invasion of Ukraine ($\sim$92k).}
+\end{center}
+```
+
+![](../iterations/task_05/v5/battle_deaths_v5.pdf){fig-align="center" width="85%"}
+
+```{=latex}
+\vspace{-0.4em}
+\begin{center}
+{\footnotesize\color{darkstone}\itshape Source: UCDP (2025)}
+\end{center}
+```
+
+\newpage
+
+# Task 6 — Color as an Important Aesthetic
+
+```{=latex}
+\begin{center}
+{\fontsize{14pt}{17pt}\selectfont\color{onyx}\textbf{Wind and solar replaced coal in Europe --- but China and India are still coal-anchored.}}\\[0.4em]
+{\fontsize{11pt}{14pt}\selectfont\color{alloy} Share of electricity generation by fuel category, ten countries, 2000--2025. Sweden and France remain low-carbon throughout (nuclear, hydro). Germany, Denmark, and the UK rebuilt their grids on wind and solar. Coal still supplies more than half of generation in China, India, and Poland.}
+\end{center}
+```
+
+![](../iterations/task_06/v4/energy_mix_v4.pdf){fig-align="center" width="95%"}
+
+```{=latex}
+\vspace{-0.4em}
+\begin{center}
+{\footnotesize\color{darkstone}\itshape Source: Ember (2025)}
+\end{center}
+```
+
+\newpage
+
+# Task 7 — Maximum Data-ink Ratio (Tufte)
+
+```{=latex}
+\begin{center}
+{\fontsize{14pt}{17pt}\selectfont\color{onyx}\textbf{The SNB cut its policy rate back to zero in 2025.}}\\[0.4em]
+{\fontsize{11pt}{14pt}\selectfont\color{alloy} Swiss National Bank policy rate, monthly, 2000--2026. From a pre-GFC high, through nearly eight years of negative rates and a brief 2023 rebound, the rate was cut back to zero in mid-2025.}
+\end{center}
+```
+
+![](../iterations/task_07/v10/snb_rate_v10.pdf){fig-align="center" width="92%"}
+
+```{=latex}
+\vspace{-0.4em}
+\begin{center}
+{\footnotesize\color{darkstone}\itshape Source: Swiss National Bank (2026)}
+\end{center}
+```
+
+\newpage
+
+# Task 8 — Non-standard Chart Type
+
+```{=latex}
+\begin{center}
+{\fontsize{14pt}{17pt}\selectfont\color{onyx}\textbf{Partners Group paid out 97\% of its 2024 profit as dividend.}}\\[0.4em]
+{\fontsize{11pt}{14pt}\selectfont\color{alloy} FY2024 income-statement cascade in CHF million, from operating revenue down to the proposed dividend. Just over half of CHF 2.14\,bn operating revenue survives the cost cascade as net profit; the board proposes paying CHF 1.09\,bn (CHF 42.00/share) to shareholders and retaining only CHF 36\,m.}
+\end{center}
+```
+
+![](../iterations/task_08/v35/pg_income_sankey_v35.pdf){fig-align="center" width="98%"}
+
+```{=latex}
+\vspace{-0.4em}
+\begin{center}
+{\footnotesize\color{darkstone}\itshape Source: Partners Group (2024)}
+\end{center}
+```
+
+\newpage
+
+# Task 9 — Visualization of Textual Data
+
+```{=latex}
+\begin{center}
+{\fontsize{14pt}{17pt}\selectfont\color{onyx}\textbf{American inaugural sentences have shrunk from over 60 words to under 20 in 236 years.}}\\[0.4em]
+{\fontsize{11pt}{14pt}\selectfont\color{alloy} Average words per sentence in each US presidential inaugural address, 1789--2025. Washington's first inaugural ran 62 words per sentence; Biden's 2021 address ran 11, the lowest in the dataset.}
+\end{center}
+```
+
+![](../iterations/task_09/v8/inaugural_sentence_length_v8.pdf){fig-align="center" width="88%"}
+
+```{=latex}
+\vspace{-0.4em}
+\begin{center}
+{\footnotesize\color{darkstone}\itshape Source: Miller Center (2025)}
+\end{center}
+```
+
+\newpage
+
+# Task 10 — Hand-drawn Visualization
+
+```{=latex}
+\begin{center}
+{\fontsize{14pt}{17pt}\selectfont\color{onyx}\textbf{Migration to Switzerland surged twice --- with EU free movement, then the Ukraine war.}}\\[0.4em]
+{\fontsize{11pt}{14pt}\selectfont\color{alloy} Hand-drawn on millimetre paper. Annual net migration of the foreign resident population, 2004--2024. The 2008 high followed full EU free movement; the 2023 record is about a third Ukrainians, counted a year after their 2022 arrival --- without them it would not be a record.}
+\end{center}
+```
+
+```{=latex}
+\begin{center}
+\includegraphics[width=0.92\linewidth,height=0.62\textheight,keepaspectratio]{../iterations/task_10/hand_drawn_vis.pdf}\\[0.4em]
+{\footnotesize\color{darkstone}\itshape Source: BFS (2024)}
+\end{center}
+```
+
+\newpage
+
+# Task 11 — Data Map
+
+```{=latex}
+\begin{center}
+{\fontsize{14pt}{17pt}\selectfont\color{onyx}\textbf{Same federal mandate, 75\% premium gap: Genève adults pay CHF 764/month, Zug adults CHF 436.}}\\[0.4em]
+{\fontsize{11pt}{14pt}\selectfont\color{alloy} Mean adult standard health-insurance premium by canton, 2026 (CHF 300 deductible, with accident, ordinary tariff; averaged across all insurers). Basic coverage is identical nationwide under the federal KVG --- the cantonal spread reflects local healthcare costs, not benefits. Equal-area CH1903+ / LV95 projection.}
+\end{center}
+```
+
+![](../iterations/task_11/v13/kvg_premium_v13.pdf){fig-align="center" width="92%"}
+
+```{=latex}
+\vspace{-0.4em}
+\begin{center}
+{\footnotesize\color{darkstone}\itshape Source: BAG (2026)}
+\end{center}
+```
+
+\newpage
+
+# Task 12 --- Interactive
+
+```{=latex}
+\begin{center}
+{\fontsize{14pt}{16pt}\selectfont\color{onyx}\textbf{Plate boundaries draw themselves: 75,000 M$\geq$5 earthquakes, 1980--2025.}}\\[0.3em]
+{\fontsize{9.5pt}{11.5pt}\selectfont\color{alloy} Each event is a single dot, alpha-stacked into a carpet; M$\geq$7 events appear in heritage red, sized by magnitude. Plate boundaries (Bird, 2003) overlaid in dark grey. \textbf{Overview first $\to$ zoom \& filter $\to$ details on demand:} a dual-handle year window, a magnitude threshold, four zoom presets, and click-a-country to filter every panel. Hosted on GitHub Pages via Observable Framework.}
+\end{center}
+\vspace{0.5em}
+
+\noindent\begin{minipage}[t]{0.32\textwidth}\centering
+\includegraphics[width=\linewidth]{../final/task_12/t12_overview.png}\\[0.25em]
+{\fontsize{7.5pt}{9pt}\selectfont\color{darkstone}\itshape \textbf{Overview} --- world seismicity; the carpet darkens where events stack, so the plate boundaries draw themselves.}
+\end{minipage}\hfill\begin{minipage}[t]{0.32\textwidth}\centering
+\includegraphics[width=\linewidth]{../final/task_12/t12_zoom_ringoffire.png}\\[0.25em]
+{\fontsize{7.5pt}{9pt}\selectfont\color{darkstone}\itshape \textbf{Zoom \& filter} --- the ``Ring of Fire'' preset; sliders narrow the years and magnitude, and ``Reset all'' returns to the start.}
+\end{minipage}\hfill\begin{minipage}[t]{0.32\textwidth}\centering
+\includegraphics[width=\linewidth]{../final/task_12/t12_detail_japan.png}\\[0.25em]
+{\fontsize{7.5pt}{9pt}\selectfont\color{darkstone}\itshape \textbf{Details on demand} --- clicking Japan filters every panel: 5,697 events, the M9.1 Tōhoku drill-down, and the histogram \& year strip rescoped (the 2011 spike).}
+\end{minipage}
+
+\vspace{0.7em}
+\begin{center}
+{\fontsize{10pt}{12pt}\selectfont\color{alloy}\textbf{Try it live:} \url{https://alexander-the-sufficient.github.io/data_vizualisation_with_ai/task_12/?v=2026-06-02}}\\[0.3em]
+{\footnotesize\color{darkstone}\itshape Source: USGS ANSS catalog (2025)}
+\end{center}
+```
+
+\newpage
+
+# Task 13 --- Documented Creation Process
+
+```{=latex}
+\vspace{-0.5em}
+\begin{center}
+{\fontsize{13pt}{15pt}\selectfont\color{onyx}\textbf{From two raw lines to a recession indicator: the US yield curve, 1976--2026.}}\\[0.2em]
+{\fontsize{9.5pt}{11pt}\selectfont\color{alloy} Each panel is one deliberate step toward the final design.}
+\end{center}
+
+\vspace{0.2em}
+
+\noindent\begin{minipage}[t]{0.188\textwidth}\centering
+{\fontsize{8pt}{9.5pt}\selectfont\color{alloy}\textbf{Idea}}\\[0.2em]
+\begin{minipage}[t][1.7cm][t]{\linewidth}
+{\fontsize{7pt}{8.7pt}\selectfont\color{darkstone} \emph{Question:} does an inverted yield curve really precede every US recession? \emph{Approach:} derive the 10Y$-$2Y spread, mark the zero line, then overlay NBER recession bands and let the visual coincidence make the case.}
+\end{minipage}
+\end{minipage}\hfill\begin{minipage}[t]{0.188\textwidth}\centering
+{\fontsize{8pt}{9.5pt}\selectfont\color{alloy}\textbf{v1 --- raw two-line}}\\[0.15em]
+\includegraphics[width=\linewidth,height=1.7cm,keepaspectratio]{../iterations/task_13/v1/yield_curve_v1.pdf}\\[0.15em]
+{\fontsize{7pt}{8.5pt}\selectfont\color{darkstone} Both rates on one panel; subtract by eye.}
+\end{minipage}\hfill\begin{minipage}[t]{0.188\textwidth}\centering
+{\fontsize{8pt}{9.5pt}\selectfont\color{alloy}\textbf{v2 --- the spread}}\\[0.15em]
+\includegraphics[width=\linewidth,height=1.7cm,keepaspectratio]{../iterations/task_13/v2/yield_curve_v2.pdf}\\[0.15em]
+{\fontsize{7pt}{8.5pt}\selectfont\color{darkstone} Plot 10Y$-$2Y directly. Below zero = inverted.}
+\end{minipage}\hfill\begin{minipage}[t]{0.188\textwidth}\centering
+{\fontsize{8pt}{9.5pt}\selectfont\color{alloy}\textbf{v3 --- + recession bands}}\\[0.15em]
+\includegraphics[width=\linewidth,height=1.7cm,keepaspectratio]{../iterations/task_13/v3/yield_curve_v3.pdf}\\[0.15em]
+{\fontsize{7pt}{8.5pt}\selectfont\color{darkstone} NBER overlay; the coincidence does the work.}
+\end{minipage}\hfill\begin{minipage}[t]{0.188\textwidth}\centering
+{\fontsize{8pt}{9.5pt}\selectfont\color{alloy}\textbf{v4 --- over-annotated}}\\[0.15em]
+\includegraphics[width=\linewidth,height=1.7cm,keepaspectratio]{../iterations/task_13/v4/yield_curve_v4.pdf}\\[0.15em]
+{\fontsize{7pt}{8.5pt}\selectfont\color{darkstone} Lag labels + verbose callout. Rejected as cluttered.}
+\end{minipage}
+
+\vspace{0.4em}
+
+\begin{center}
+\setlength{\fboxsep}{6pt}%
+\fcolorbox{darkstone}{lightquartz}{%
+\begin{minipage}{0.9\textwidth}
+{\fontsize{8pt}{10.5pt}\selectfont\color{alloy}\textbf{From v4 to the final v7.}\quad\color{darkstone}\emph{From V4 to V7 what happened was that it would stop indicating the inverted yield curve as red but turn it into a bronze like color which I didn't like so I told it to remove that. Then I also tried to play around with the month markers but I ended up deciding to remove those and also the text notation I removed as well because we discussed in class that we shouldn't add much to a visualization so it could be used in different contexts.}}
+\end{minipage}}
+\end{center}
+
+\vspace{0.3em}
+
+\begin{center}
+{\fontsize{10.5pt}{12pt}\selectfont\color{onyx}\textbf{v7 --- final: every US recession since 1976 was preceded by an inverted yield curve.}}\\[0.1em]
+{\fontsize{9pt}{11pt}\selectfont\color{alloy} Below-zero (inverted) spread drawn in red so inversions register at a glance. NBER recession bands sit behind --- all six visible, including the brief 2020 band. The 2022 inversion --- the deepest since 1981 --- has not been followed by a recession.}\\[0.25em]
+\includegraphics[width=0.54\textwidth]{../iterations/task_13/v7/yield_curve_v7.pdf}\\[0.2em]
+{\footnotesize\color{darkstone}\itshape Source: FRED (2026)}
+\end{center}
+```
+
+\newpage
+
+# Task 15 --- Favorite Classical (Non-AI) Data-Viz Tools
+
+- **R** --- R is probably the base of my favorite classical non-AI data visualization tools. I like R because it is the first programming language that I learned, and also because the data visualizations in R look very nice. While I do prefer Python for a lot of different use cases, and even prefer it over R in most cases, I believe that R is the best for data visualization specifically given its library ggplot2, which I will discuss in the next bullet.
+- **ggplot2** --- As mentioned above, ggplot2 is probably my favorite library for data visualizations, especially static ones. The output looks very clean and professional, and I feel like it's what most professionals use in the industry. What I like about it is how you build the visualization up by levels, and it makes intuitive sense to me the way it is built up. I don't like Matplotlib. It looks more childish, so to speak, and it's less intuitive in my eyes.
+- **`design_system.R`** --- This is not necessarily a tool in the sense that the others are, but it is something that I created myself. It is a document that outlines what I would like in my data visualizations. Here I specified the colors, the font, and everything I want in terms of visualization, and Claude would always refer to this and use it as the base for its design of visualizations, in order to ensure that the visualizations have a common theme and it doesn't start drifting around or changing colors slightly or using different fonts.
+- **Quarto** --- Quarto is the tool that I use to create this portfolio. I recently stumbled upon it in our Introduction to Programming course that I took this semester. I like the way that I can put everything into Quarto, and it uses LaTeX to then render the portfolio. It creates one unified document that I can have everything inside of, and that renders nicely into the portfolio.
+- **VS Code** --- VS Code is the classic IDE for coding, and it is also what I've been using now. I've heard that Cursor has better AI integration, but I've used VS Code in the past and I feel comfortable with how it works. I feel like the AI integration in VS Code is already good enough. The only drawback of VS Code is that it's not as good for R, but nevertheless it worked perfectly well for my use case here with the R extension. What I like most about VS Code is how it gives me one window where I can have everything combined. I can have Claude Code, GitHub Copilot, my Quarto Markdown, and any code that I write. I think it's a great app.
+
+\newpage
+
+# Task 16 --- Favorite AI Data-Viz Tools
+
+- **Claude Code** --- Claude Code is probably by far my most favorite AI tool. I used to exclusively use ChatGPT, but once I made the switch to Claude it opened an entirely new world for me. Claude does a great job at following instructions, and it worked well during this task as well. What I like about Claude as well is the ability to use a CLAUDE.md and give it instructions on how to work properly. I made a very extensive CLAUDE.md to set the guardrails and the requirements for this course, in order to make sure the outputs are as good as possible on their first version. I still had to iterate a lot throughout, but I feel like it would have been worse had I used a different agentic model.
+- **Playwright MCP** --- The Playwright MCP was very important for the interactive visualization. It was a game changer, as it allowed Claude to actually review its output, test the interactive visualization itself, and see whether its code worked the way it had intended and whether things actually worked --- instead of me having to test them myself and then give it feedback in this back-and-forth loop. This way Claude could check its own work. This unfortunately didn't mean that the first iteration was already perfect. This was probably the task that took the most time, but I feel like if I hadn't had the Playwright tool, this task would have been a nightmare.
+- **GitHub MCP** --- I like this tool a lot because it allows Claude to interact with my GitHub itself. This was crucial in this case for my interactive chart, as that is running over my GitHub, and it allowed Claude to push things to my GitHub and that way work as autonomously as possible with as little input from me. I like this tool a lot in general because it was also very useful for my other classes, but I won't go into that here.
+- **Context7 MCP** --- I like this one because it ensures Claude has access to the most recent libraries and changes to code, so it doesn't use any outdated code and is always up to date. This is nothing crazy, but I feel like its usefulness is self-explanatory.
+- **Superwhisper** --- I like this one a lot as well because it allowed me to give voice commands to Claude, which made the process of giving feedback and iterating a lot easier. This way I could just talk to Claude and tell it what I wanted, instead of having to write everything down. This was especially useful for the interactive visualization, where I had to give a lot of feedback on how things should work and how they should look, and it was just easier to talk to Claude about it instead of writing everything down.
+
+\newpage
+
+# Task 17 --- Favorite Inspiration Resources
+
+**Data sources**
+
+- **FRED** (Federal Reserve Bank of St. Louis) --- This one is probably one of my favorite datasets, especially because I use it with an API key, which is something I learned in my programming course that I took this semester. And the process of using an API key has something satisfying to it that I enjoy a lot. FRED also has great data, economic data on the US, which is something that's always interesting.
+- **USGS** --- What I like about the USGS is that they have a lot of different data on a lot of different topics. They have data on earthquakes, on minerals, on all kinds of things. So it's a great resource to find data on a lot of different topics. The data is also of very good quality and very well documented, which is something I really appreciate.
+- **SNB data portal** --- I like the SNB portal a lot because it's the Swiss National Bank, and as a Swiss myself and an economics student, I'm obviously interested in that kind of data.
+
+**Inspiration**
+
+- **Financial Times** --- I like the Financial Times a lot. It's probably the news outlet I read the most on a daily basis. I really like their style of visualization and the colors that they use, so that is something I draw inspiration from.
+- **The Economist** --- The Economist is obviously the classic, known for their good visualizations and the very distinct colors they use. However, as mentioned above, I do prefer the style of the Financial Times, even though I have to say The Economist does a great job, and I understand why they are known for their visualizations.
+
+\newpage
+
+# Task 18 --- References
+
+```{=latex}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+\noindent\begin{minipage}[t]{0.49\textwidth}
+{\fontsize{11pt}{13pt}\selectfont\color{onyx}\textbf{Data sources}}\\[0.3em]
+{\fontsize{8.5pt}{10.5pt}\selectfont\color{alloy}
+\textbf{Task 2.} USGS Data Series 140, \emph{Iron and Steel Statistics} (1900--2021); World Steel Association, P1 crude steel total, USA (2021--2025). \url{https://www.usgs.gov/centers/national-minerals-information-center/historical-statistics-mineral-and-material-commodities}; \url{https://worldsteel.org/data/annual-production-steel-data/}\\[0.25em]
+\textbf{Task 4.} GLAMOS (2025), Swiss Glacier Mass Balance, release 2025. \url{https://doi.glamos.ch/data/massbalance/massbalance_2025_r2025.html}\\[0.25em]
+\textbf{Task 5.} UCDP (2025), Battle-Related Deaths Dataset v25.1. \url{https://ucdp.uu.se/downloads/}\\[0.25em]
+\textbf{Task 6.} Ember (2025), Yearly Electricity Data. \url{https://ember-energy.org/data/yearly-electricity-data/}\\[0.25em]
+\textbf{Task 7.} Swiss National Bank, ``Official rates of the SNB'' (cube \texttt{snboffzisa}). \url{https://data.snb.ch/}\\[0.25em]
+\textbf{Task 8.} Partners Group Holding AG, \emph{Annual Report 2024}. \url{https://www.partnersgroup.com/en/shareholders/reports-and-presentations}\\[0.25em]
+\textbf{Task 9.} US presidential inaugural addresses, via the \texttt{quanteda} R corpus \texttt{data\_corpus\_inaugural} (Bartleby.com / Miller Center). \url{https://millercenter.org/the-presidency/presidential-speeches}\\[0.25em]
+\textbf{Task 10.} BFS, \emph{Bilanz der ständigen Wohnbevölkerung nach Staatsangehörigkeit, 1999--2024} (net migration of the foreign permanent resident population). \url{https://www.bfs.admin.ch/bfsstatic/dam/assets/36073712/master}\\[0.25em]
+\textbf{Task 11.} BAG, \emph{Krankenversicherungsprämien} (opendata.swiss); canton geometry from \texttt{severinlandolt/map-switzerland}. \url{https://opendata.swiss/de/dataset/health-insurance-premiums}\\[0.25em]
+\textbf{Task 12.} USGS ANSS Comprehensive Earthquake Catalog via the FDSN event web service (M$\geq$5, 1980--2025); plate boundaries from Bird (2003), PB2002. \url{https://earthquake.usgs.gov/fdsnws/event/1/}\\[0.25em]
+\textbf{Task 13.} FRED (Federal Reserve Bank of St.\ Louis), series \texttt{T10Y2Y}, \texttt{USREC}, \texttt{DGS10}, \texttt{DGS2}. \url{https://fred.stlouisfed.org/}
+}
+\end{minipage}\hfill\begin{minipage}[t]{0.49\textwidth}
+{\fontsize{11pt}{13pt}\selectfont\color{onyx}\textbf{Third-party visualizations (tasks 1 \& 3)}}\\[0.3em]
+{\fontsize{8.5pt}{10.5pt}\selectfont\color{alloy}
+\textbf{Task 1 --- ``Bad''.} White House social-media post, Feb 2026 (US raw steel production 2024 vs.\ 2025), via Lead Stories fact-check. \url{https://hoax-alert.leadstories.com/2026/02/fact-check-white-house-steel-production-chart-not-accurate-picture-of-growth-rate.html}\\[0.25em]
+\textbf{Task 3 --- ``Good''.} Our World in Data, ``Brazil, India, Vietnam, and Russia hold large reserves of rare earth, but mine very little of them'' (2026-04-07). \url{https://ourworldindata.org/data-insights/brazil-india-vietnam-and-russia-hold-large-reserves-of-rare-earth-but-mine-very-little-of-them}
+}
+
+\vspace{0.9em}
+{\fontsize{11pt}{13pt}\selectfont\color{onyx}\textbf{Software \& tools}}\\[0.3em]
+{\fontsize{8.5pt}{10.5pt}\selectfont\color{alloy}
+\textbf{R packages.} \texttt{ggplot2}, \texttt{tidyverse}, \texttt{dplyr}, \texttt{readr}, \texttt{sf} (T11), \texttt{networkD3} + \texttt{chromote} (T8 Sankey), \texttt{ggrepel} (T5), \texttt{quanteda} (T9), \texttt{httr} + \texttt{jsonlite} (T13 FRED fetch).\\[0.25em]
+\textbf{Interactive (T12).} Observable Framework, D3.js (\texttt{d3-zoom}, \texttt{d3-geo}, \texttt{geoEqualEarth}), TopoJSON, Observable Plot. Hosted on GitHub Pages via GitHub Actions.\\[0.25em]
+\textbf{Document.} Quarto + \texttt{xelatex} (A4 landscape). Typography: IBM Plex Sans / IBM Plex Mono.\\[0.25em]
+\textbf{Web services.} opendata.swiss (T11); GitHub Pages (T12); USGS FDSN (T12); FRED API (T13).
+}
+
+\vspace{0.9em}
+{\fontsize{11pt}{13pt}\selectfont\color{onyx}\textbf{Generative-AI tools used}}\\[0.3em]
+{\fontsize{8.5pt}{10.5pt}\selectfont\color{alloy}
+\textbf{Claude Code} (Anthropic, Claude Opus 4.7--4.8) --- primary chart-code copilot. \quad \textbf{Playwright MCP} --- T12 browser verification \& interaction screenshots. \quad \textbf{Context7 MCP} --- T12 docs lookup. \quad \textbf{GitHub MCP} --- T12 Pages/Actions deploy. \quad \textbf{Superwhisper} --- voice-to-text dictation.
+}
+
+\vspace{0.9em}
+{\fontsize{11pt}{13pt}\selectfont\color{onyx}\textbf{Per-graph AI disclosure}}\\[0.3em]
+{\fontsize{8.5pt}{10.5pt}\selectfont\color{alloy}
+\textbf{T1.} No AI. \quad \textbf{T2.} Claude Code, Superwhisper. \quad \textbf{T3.} No AI. \quad \textbf{T4.} Claude Code, Superwhisper. \quad \textbf{T5.} Claude Code, Superwhisper. \quad \textbf{T6.} Claude Code, Superwhisper. \quad \textbf{T7.} Claude Code, Superwhisper. \quad \textbf{T8.} Claude Code, Superwhisper. \quad \textbf{T9.} Claude Code, Superwhisper. \quad \textbf{T10.} No AI. \quad \textbf{T11.} Claude Code, Superwhisper. \quad \textbf{T12.} Claude Code, Playwright MCP, Context7 MCP, GitHub MCP, Superwhisper. \quad \textbf{T13.} Claude Code, Superwhisper. \quad \textbf{T15.} No AI. \quad \textbf{T16.} No AI. \quad \textbf{T17.} No AI. \quad \textbf{T18.} Claude Code, Superwhisper.
+}
+\end{minipage}
+```

@@ -1,0 +1,61 @@
+year,president,first_name,party,n_word,n_sent,avg_wps
+1789,Washington,George,none,1430,23,62.17391304347826
+1793,Washington,George,none,135,4,33.75
+1797,Adams,John,Federalist,2318,37,62.648648648648646
+1801,Jefferson,Thomas,Democratic-Republican,1726,41,42.09756097560975
+1805,Jefferson,Thomas,Democratic-Republican,2166,45,48.13333333333333
+1809,Madison,James,Democratic-Republican,1175,21,55.95238095238095
+1813,Madison,James,Democratic-Republican,1210,33,36.666666666666664
+1817,Monroe,James,Democratic-Republican,3370,121,27.85123966942149
+1821,Monroe,James,Democratic-Republican,4470,131,34.12213740458015
+1825,Adams,John Quincy,Democratic-Republican,2915,74,39.391891891891895
+1829,Jackson,Andrew,Democratic,1128,25,45.12
+1833,Jackson,Andrew,Democratic,1176,29,40.55172413793103
+1837,Van Buren,Martin,Democratic,3839,95,40.410526315789475
+1841,Harrison,William Henry,Whig,8446,210,40.21904761904762
+1845,Polk,James Knox,Whig,4803,153,31.392156862745097
+1849,Taylor,Zachary,Whig,1088,22,49.45454545454545
+1853,Pierce,Franklin,Democratic,3333,104,32.04807692307692
+1857,Buchanan,James,Democratic,2824,89,31.730337078651687
+1861,Lincoln,Abraham,Republican,3634,135,26.918518518518518
+1865,Lincoln,Abraham,Republican,699,26,26.884615384615383
+1869,Grant,Ulysses S.,Republican,1127,40,28.175
+1873,Grant,Ulysses S.,Republican,1338,43,31.11627906976744
+1877,Hayes,Rutherford B.,Republican,2484,59,42.101694915254235
+1881,Garfield,James A.,Republican,2975,111,26.8018018018018
+1885,Cleveland,Grover,Democratic,1683,44,38.25
+1889,Harrison,Benjamin,Republican,4386,157,27.936305732484076
+1893,Cleveland,Grover,Democratic,2014,58,34.724137931034484
+1897,McKinley,William,Republican,3965,130,30.5
+1901,McKinley,William,Republican,2212,100,22.12
+1905,Roosevelt,Theodore,Republican,984,33,29.818181818181817
+1909,Taft,William Howard,Republican,5429,158,34.360759493670884
+1913,Wilson,Woodrow,Democratic,1699,68,24.985294117647058
+1917,Wilson,Woodrow,Democratic,1529,59,25.915254237288135
+1921,Harding,Warren G.,Republican,3327,148,22.47972972972973
+1925,Coolidge,Calvin,Republican,4056,196,20.693877551020407
+1929,Hoover,Herbert,Republican,3558,158,22.518987341772153
+1933,Roosevelt,Franklin D.,Democratic,1880,85,22.11764705882353
+1937,Roosevelt,Franklin D.,Democratic,1808,96,18.833333333333332
+1941,Roosevelt,Franklin D.,Democratic,1341,68,19.720588235294116
+1945,Roosevelt,Franklin D.,Democratic,557,27,20.62962962962963
+1949,Truman,Harry S.,Democratic,2272,116,19.586206896551722
+1953,Eisenhower,Dwight D.,Republican,2454,119,20.6218487394958
+1957,Eisenhower,Dwight D.,Republican,1659,92,18.032608695652176
+1961,Kennedy,John F.,Democratic,1366,52,26.26923076923077
+1965,Johnson,Lyndon Baines,Democratic,1489,93,16.010752688172044
+1969,Nixon,Richard Milhous,Republican,2124,103,20.62135922330097
+1973,Nixon,Richard Milhous,Republican,1802,68,26.5
+1977,Carter,Jimmy,Democratic,1224,52,23.53846153846154
+1981,Reagan,Ronald,Republican,2432,129,18.852713178294575
+1985,Reagan,Ronald,Republican,2564,123,20.84552845528455
+1989,Bush,George,Republican,2317,141,16.43262411347518
+1993,Clinton,Bill,Democratic,1598,81,19.728395061728396
+1997,Clinton,Bill,Democratic,2157,111,19.43243243243243
+2001,Bush,George W.,Republican,1584,97,16.329896907216494
+2005,Bush,George W.,Republican,2071,99,20.91919191919192
+2009,Obama,Barack,Democratic,2390,110,21.727272727272727
+2013,Obama,Barack,Democratic,2097,88,23.829545454545453
+2017,Trump,Donald J.,Republican,1445,88,16.420454545454547
+2021,Biden,Joseph R.,Democratic,2372,216,10.981481481481481
+2025,Trump,Donald J.,Republican,2913,177,16.45762711864407

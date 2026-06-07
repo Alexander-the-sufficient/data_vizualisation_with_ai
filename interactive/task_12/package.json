@@ -1,0 +1,17 @@
+{
+  "name": "earthquakes-task12",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "observable preview",
+    "build": "observable build",
+    "clean": "observable clean"
+  },
+  "dependencies": {
+    "@observablehq/framework": "^1.13.0",
+    "@observablehq/plot": "^0.6.16",
+    "d3": "^7.9.0",
+    "topojson-client": "^3.1.0"
+  }
+}

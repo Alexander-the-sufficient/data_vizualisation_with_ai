@@ -1,0 +1,35 @@
+source,target,quads
+Solar,Electricity,0.56
+Solar,Residential,0.05
+Solar,Commercial,0.24
+Solar,Industrial,0.04
+Nuclear,Electricity,8.1
+Hydro,Electricity,0.81
+Hydro,Industrial,0.01
+Wind,Electricity,1.5
+Geothermal,Electricity,0.06
+Geothermal,Residential,0.02
+Geothermal,Commercial,0.02
+Geothermal,Industrial,0.02
+Natural Gas,Electricity,13.3
+Natural Gas,Residential,4.96
+Natural Gas,Commercial,4.69
+Natural Gas,Industrial,10.9
+Natural Gas,Transportation,1.32
+Coal,Electricity,7.24
+Coal,Industrial,0.93
+Biomass,Electricity,0.33
+Biomass,Residential,0.45
+Biomass,Commercial,0.07
+Biomass,Industrial,2.23
+Biomass,Transportation,1.79
+Petroleum,Electricity,0.17
+Petroleum,Residential,0.97
+Petroleum,Commercial,0.94
+Petroleum,Industrial,8.53
+Petroleum,Transportation,24.8
+Net Electricity Imports,Electricity,0.07
+Electricity,Residential,4.64
+Electricity,Commercial,5.21
+Electricity,Industrial,3.43
+Electricity,Transportation,0.02

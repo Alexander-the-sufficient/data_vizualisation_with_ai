@@ -1,0 +1,35 @@
+.DS_Store
+.ds_store
+
+# Framework dev / build artefacts
+interactive/task_12/node_modules/
+interactive/task_12/dist/
+interactive/task_12/src/.observablehq/
+
+# Local tooling caches
+.claude/
+.playwright-mcp/
+
+# R session leftovers
+Rplots.pdf
+*.Rhistory
+**/.Rhistory
+
+# Course materials (delivered via Canvas, not part of the deliverable)
+slides/
+syllabus_*.pdf
+
+# Blank graph-paper template for hand-drawing (a working tool, ~23 MB, not a deliverable)
+paper/
+
+# Per-task data fetch intermediates — the tidy CSV next to them is the
+# source of truth; batches are regeneratable from the prep scripts.
+data/*/batches/
+
+# Secrets — API keys etc. NEVER commit these.
+.env
+.Renviron
+
+# Local HTML preview renders (from opening a .md in the IDE)
+CLAUDE.html
+CLAUDE_files/
